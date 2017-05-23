@@ -67,7 +67,7 @@ public class SendTest {
     
     @Test
     @DirtiesContext
-    public void shouldSendTextMessageToQueue() throws InterruptedException {
+    public void shouldSendTextMessageToQueue() throws InterruptedException, JMSException {
     	// given
     	final String text = "testText";
     	
