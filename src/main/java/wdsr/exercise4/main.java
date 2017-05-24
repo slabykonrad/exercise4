@@ -27,7 +27,7 @@ public class main {
 			connectionToBroker = new ActiveMQConnectionFactory(connectionUri).createConnection();
 			connectionToBroker.start();
 			session = connectionToBroker.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			destination = session.createQueue("slabykonrad.QUEUE");
+			destination = session.createTopic("slabykonrad.TOPIC");
 			messageProducer = session.createProducer(destination);
 			
 			TextMessage message = session.createTextMessage();
