@@ -23,7 +23,7 @@ public class JmsSender {
 	
 	private final String queueName;
 	private final String topicName;
-	private final String connectionUri = "tcp://localhost:62616";
+	private final String connectionUri = "tcp://localhost:61616";
 	
 	private Connection connectionToBroker;
 	private Session session;
