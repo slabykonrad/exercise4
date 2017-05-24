@@ -4,7 +4,9 @@ import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
-import javax.jms.MessageProducer;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
@@ -18,8 +20,9 @@ public class main {
 	private static Connection connectionToBroker;
 	private static Session session;
 	private static Destination destination;
-	private static MessageProducer messageProducer;
+	private static MessageConsumer messageConsumer;
 	private static int first = 10000;
+	private static int quantityOfMessage = 0;
 	
 	public static void main(String[] args) {
 		
@@ -28,32 +31,24 @@ public class main {
 			connectionToBroker.start();
 			session = connectionToBroker.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			destination = session.createQueue("slabykonrad.QUEUE");
-			messageProducer = session.createProducer(destination);
+			messageConsumer = session.createConsumer(destination);
 			
 			TextMessage message = session.createTextMessage();
-			message.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
 			
-			long start_time = System.nanoTime();
-			for(int i=0; i<first; ++i){
-				message.setText("test_" + i);
-				messageProducer.send(message);
-			}
-			long end_time = System.nanoTime();
-			log.info("10000 persistent messages sent in {" + ((end_time - start_time)/1e6) + "} milliseconds.\n");
+			messageConsumer.setMessageListener(new MessageListener() {
+				
+				@Override
+				public void onMessage(Message message) {
+					try {
+						log.info(((TextMessage) message).getText());
+						++quantityOfMessage;
+					} catch (JMSException e) {
+						log.error(e.getMessage());
+					}
+				}
+			});
+			log.info("Number of messages: " + quantityOfMessage);
 			
-			message.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
-			start_time = System.nanoTime();
-			for(int i=0; i<first; ++i){
-				message.setText("test_" + i);
-				messageProducer.send(message);
-			}
-			end_time = System.nanoTime();
-			log.info("10000 non-persistent messages sent in {" + ((end_time - start_time)/1e6) + "} milliseconds.\n");
-			
-			
-			
-			
-			messageProducer.close();
 			session.close();
 			connectionToBroker.close();
 		} catch (JMSException e) {
