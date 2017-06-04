@@ -9,6 +9,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
@@ -19,21 +20,19 @@ public class main {
 	private final static String connectionUri = "tcp://localhost:61616";
 	private static Connection connectionToBroker;
 	private static Session session;
-	private static Destination destination;
+	private static Topic destination;
 	private static MessageConsumer messageConsumer;
-	private static int first = 10000;
 	private static int quantityOfMessage = 0;
 	
 	public static void main(String[] args) {
 		
 		try {
 			connectionToBroker = new ActiveMQConnectionFactory(connectionUri).createConnection();
+			connectionToBroker.setClientID("2017");
 			connectionToBroker.start();
 			session = connectionToBroker.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			destination = session.createQueue("slabykonrad.QUEUE");
-			messageConsumer = session.createConsumer(destination);
-			
-			TextMessage message = session.createTextMessage();
+			destination = session.createTopic("slabykonrad.TOPIC");
+			messageConsumer = session.createDurableSubscriber(destination, "slaby");
 			
 			messageConsumer.setMessageListener(new MessageListener() {
 				
